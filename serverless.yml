@@ -50,7 +50,6 @@ custom:
         schema: ${file(models/create-image-request.json)}
 
 functions:
-
   GetGroups:
     handler: src/lambda/http/getGroups.handler
     events:
@@ -71,7 +70,7 @@ functions:
             summary: Create a new group
             description: Create a new group
             requestModels:
-              'application/json': GroupRequest
+              "application/json": GroupRequest
 
   GetImages:
     handler: src/lambda/http/getImages.handler
@@ -79,6 +78,14 @@ functions:
       - http:
           method: get
           path: groups/{groupId}/images
+          cors: true
+
+  GetImage:
+    handler: src/lambda/http/getImage.handler
+    events:
+      - http:
+          method: get
+          path: images/{imageId}
           cors: true
 
   CreateImage:
@@ -93,7 +100,7 @@ functions:
             summary: Create a new image
             description: Create a new image
             requestModels:
-              'application/json': ImageRequest
+              "application/json": ImageRequest
 
 resources:
   Resources:
@@ -129,17 +136,18 @@ resources:
         GlobalSecondaryIndexes:
           - IndexName: ${self:provider.environment.IMAGE_ID_INDEX}
             KeySchema:
-            - AttributeName: imageId
-              KeyType: HASH
+              - AttributeName: imageId
+                KeyType: HASH
             Projection:
               ProjectionType: ALL
 
     RequestBodyValidator:
       Type: AWS::ApiGateway::RequestValidator
       Properties:
-        Name: 'request-body-validator'
+        Name: "request-body-validator"
         RestApiId:
           Ref: ApiGatewayRestApi
         ValidateRequestBody: true
         ValidateRequestParameters: false
 
+    

@@ -74,3 +74,9 @@ async function createImage(groupId: string, imageId: string, event: any) {
 
   return newItem
 }
+
+
+async function getPresignedUrl(imageId: string) {
+  
+  
+}
