@@ -28,7 +28,7 @@ export class GroupsList extends React.PureComponent<GroupsListProps, GroupsListS
       this.setState({
         groups
       })
-    } catch (e) {
+    } catch (e: any) {
       alert(`Failed to fetch groups: ${e.message}`)
     }
   }
