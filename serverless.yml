@@ -16,6 +16,8 @@ provider:
     GROUPS_TABLE: Groups-${self:provider.stage}
     IMAGES_TABLE: Images-${self:provider.stage}
     IMAGE_ID_INDEX: ImageIdIndex
+    IMAGE_BUCKET: serverless-udagram-images-${self:provider.stage}
+    PRESIGNED_URL_EXPIRATION: 300
 
   iamRoleStatements:
     - Effect: Allow
@@ -33,6 +35,11 @@ provider:
       Action:
         - dynamodb:Query
       Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.IMAGES_TABLE}/index/${self:provider.environment.IMAGE_ID_INDEX}
+    - Effect: Allow
+      Action:
+        - s3:PutObject
+        - s3:GetObject
+      Resource: arn:aws:s3:::${self:provider.environment.IMAGE_BUCKET}/*
 
 custom:
   documentation:
@@ -150,4 +157,34 @@ resources:
         ValidateRequestBody: true
         ValidateRequestParameters: false
 
-    
+    AttachmentsBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:provider.environment.IMAGE_BUCKET}
+        CorsConfiguration:
+          CorsRules:
+          - AllowedOrigins:
+            - '*'
+            AllowedHeaders:
+            - '*'
+            AllowedMethods:
+            - GET
+            - POST
+            - PUT
+            - DELETE
+            - HEAD
+            MaxAge: 3000
+
+    BucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        PolicyDocument:
+          Id: MyPolicy
+          Version: '2012-10-17'
+          Statement:
+            - Sid: PublicReadForGetBucketObjects
+              Effect: Allow
+              Principle: '*'
+              Action: 's3:GetObject'
+              Resource: arn:aws:s3:::${self:provider.environment.IMAGE_BUCKET}/*
+        Bucket: !Ref AttachmentsBucket
