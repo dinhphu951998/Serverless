@@ -19,6 +19,7 @@ provider:
     IMAGE_ID_INDEX: ImageIdIndex
     IMAGE_BUCKET: phund15-serverless-udagram-images-${self:provider.stage}
     PRESIGNED_URL_EXPIRATION: 300
+    ES_ENDPOINT: 
 
   iamRoleStatements:
     - Effect: Allow
@@ -142,6 +143,13 @@ functions:
     - websocket:
         route: $disconnect
 
+  SyncWithElasticSearch:
+    handler: src/lambda/dynamoDb/elasticSearchSync.handler
+    events:
+    - stream:
+        type: dynamodb
+        arn: !GetAtt ImagesDynamoDBTable.StreamArn
+
 resources:
   Resources:
     GroupsDynamoDBTable:
@@ -180,6 +188,8 @@ resources:
                 KeyType: HASH
             Projection:
               ProjectionType: ALL
+        StreamSpecification: #Add DynamoDB Stream
+          StreamViewType: NEW_IMAGE
 
     ConnectionsDynamoDBTable:
       Type: AWS::DynamoDB::Table
@@ -246,3 +256,27 @@ resources:
               Action: 's3:GetObject'
               Resource: arn:aws:s3:::${self:provider.environment.IMAGE_BUCKET}/*
         Bucket: !Ref AttachmentsBucket
+
+    # ImagesSearch:
+    #   Type: AWS::Elasticsearch::Domain
+    #   Properties:
+    #     ElasticsearchVersion: '6.3'
+    #     DomainName: images-search-${self:provider.stage}
+    #     ElasticsearchClusterConfig:
+    #       DedicatedMasterEnabled: false
+    #       InstanceCount: '1'
+    #       ZoneAwarenessEnabled: false
+    #       InstanceType: t2.small.elasticsearch
+    #     EBSOptions:
+    #       EBSEnabled: true
+    #       Iops: 0
+    #       VolumeSize: 10
+    #       VolumeType: 'gp2'
+    #     AccessPolicies:
+    #       Version: '2012-10-17'
+    #       Statement:
+    #       - Effect: Allow
+    #         Principal:
+    #           AWS: '*'
+    #         Action: 'es:ESHttp*'
+    #         Resource: arn:aws:es:${self:provider.region}:${AWS::AccountId}:domain/images-search-${self:provider.stage}/*

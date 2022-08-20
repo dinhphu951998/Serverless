@@ -95,7 +95,7 @@ function getPresignedUrl(imageId: string) {
     // The URL will allow to perform the PUT operation
     Bucket: imageBucket, // Name of an S3 bucket
     Key: imageId, // id of an object this URL allows access to
-    Expires: expirationTime, // A URL is only valid for 5 minutes
+    Expires: Number(expirationTime), // A URL is only valid for 5 minutes
   });
   return presignedUrl;
 }
