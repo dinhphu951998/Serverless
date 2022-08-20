@@ -36,7 +36,7 @@ export class ImagesList extends React.PureComponent<
       this.setState({
         images
       })
-    } catch (e) {
+    } catch (e: any) {
       alert(`Failed to fetch images for group : ${e.message}`)
     }
   }
