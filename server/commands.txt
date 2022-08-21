@@ -1,3 +1,6 @@
 
 wscat -c wss://2y0t567lke.execute-api.us-east-1.amazonaws.com/dev
 
+serverless deploy function --function serverless-udagram-app-dev-ResizeImage
+
+
