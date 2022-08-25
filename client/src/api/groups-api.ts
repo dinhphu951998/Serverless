@@ -11,18 +11,21 @@ export async function getGroups(): Promise<GroupModel[]> {
   return result.items
 }
 
-export async function createGroup(newGroup: GroupUploadInfo): Promise<GroupModel> {
-
+export async function createGroup(
+  idToken: string,
+  newGroup: GroupUploadInfo
+): Promise<GroupModel> {
   const reply = await fetch(`${apiEndpoint}/groups`, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json'
+      'Content-Type': 'application/json',
+      'Authorization': `Bearer ${idToken}`
     },
     body: JSON.stringify({
       name: newGroup.name,
       description: newGroup.description
     })
   })
-  const result = await reply.json();
+  const result = await reply.json()
   return result.newItem
 }
